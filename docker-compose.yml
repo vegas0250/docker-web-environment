@@ -1,0 +1,37 @@
+version: '3'
+services:
+  nodejs:
+    build: ./containers/node_12.14.0-alpine3.11
+    container_name: nodejs
+  composer:
+    build: ./containers/composer_1.9.1
+    container_name: composer
+  php-cli:
+    build: ./containers/php_7.4.1-cli-alpine3.11
+    container_name: php-cli
+  php-fpm:
+    build: ./containers/php_7.4.1-fpm-alpine3.11
+    container_name: php-fpm
+    volumes:
+      - ./www:/var/www
+    links:
+      - postgres
+  nginx:
+    build: ./containers/nginx_1.16.1-alpine
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+    links:
+      - php-fpm
+      - postgres
+    volumes:
+      - ./www:/var/www
+      - ./containers/nginx_1.16.1-alpine/config/conf.d:/etc/nginx/conf.d
+  postgres:
+    image: postgres:12
+    restart: always
+    ports:
+      - "5432:5432" 
+    environment:
+      POSTGRES_PASSWORD: 123
